@@ -70,7 +70,16 @@ function knn(data, point, k) {
 
 //pointB - prediction point. pointA - actual point of a throw
 function distance(pointA, pointB) {
-  return Math.abs(pointA - pointB);
+  //pointA and pointB is now an array [300, 0.5,16, ....]
+
+
+  // return Math.abs(pointA - pointB);
+
+  return _.chain(pointA)
+    .zip(pointB)
+    .map(([a, b]) => (a - b) ** 2)
+    .sum()
+    .value() ** 0.5
 
 }
 
