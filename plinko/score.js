@@ -55,7 +55,9 @@ function knn(data, point, k) {
   //console.log(point);
 
   return _.chain(data)
-    .map(row => [distance(row[0], point), row[3]])
+    .map(row => {
+      [distance(row[0], point), row[3]]
+    })
     .sortBy(row => row[0])
     .slice(0, k)
     .countBy(row => row[1])
