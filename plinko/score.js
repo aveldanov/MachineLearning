@@ -7,7 +7,7 @@ const outputs = [];
 
 
 function onScoreUpdate(dropPosition, bounciness, size, bucketLabel) {
-  // Runs every time a balls drops into a bucket
+  // Runs every time a ball drops into a bucket
 
   outputs.push([dropPosition, bounciness, size, bucketLabel]);
 
@@ -33,7 +33,7 @@ function runAnalysis() {
   _.range(1, 20).forEach(k => {
 
     const accuracy = _.chain(testSet)
-      .filter(testPoint => knn(trainingSet, testPoint[0], k) === testPoint[3]
+      .filter(testPoint => knn(trainingSet, _.initial(testPoint), k) === testPoint[3]
       )
       .size()
       .divide(testSetSize)
@@ -56,7 +56,10 @@ function knn(data, point, k) {
 
   return _.chain(data)
     .map(row => {
-      [distance(row[0], point), row[3]]
+      return [
+        distance(_.initial(row), point),
+        _.last(row)
+      ]
     })
     .sortBy(row => row[0])
     .slice(0, k)
@@ -93,5 +96,10 @@ function splitDataset(data, testCount) {
   const trainingSet = _.slice(shuffled, testCount);
 
   return [testSet, trainingSet];
+
+}
+
+//featureCount - number of row to normilze
+function minMax(data, featureCount) {
 
 }
