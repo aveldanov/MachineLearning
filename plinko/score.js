@@ -17,8 +17,8 @@ function onScoreUpdate(dropPosition, bounciness, size, bucketLabel) {
 function runAnalysis() {
   // Write code here to analyze stuff
   const testSetSize = 10;
-  const [testSet, trainingSet] = splitDataset(outputs, testSetSize);
-  console.log(testSet, trainingSet);
+  const k = 10;
+  //console.log(testSet, trainingSet);
   let numberCorrect = 0;
 
   // for (let i = 0; i < testSet.length; i++) {
@@ -29,18 +29,22 @@ function runAnalysis() {
   //   //console.log(bucket, testSet[i][3]);
 
   // }
+  _.range(0, 3).forEach(feature => {
+    const data = _.map(outputs, row => [row[feature], _.last(row)]);
+    //console.log(data);
 
-  _.range(1, 20).forEach(k => {
+    const [testSet, trainingSet] = splitDataset(minMax(data, 1), testSetSize);
 
     const accuracy = _.chain(testSet)
-      .filter(testPoint => knn(trainingSet, _.initial(testPoint), k) === testPoint[3]
+      .filter(testPoint => knn(trainingSet, _.initial(testPoint), k) === _.last(testPoint)
       )
       .size()
       .divide(testSetSize)
       .value()
 
 
-    console.log("For k of " + k + " accuracy: ", accuracy);
+    //console.log("For k of " + k + " accuracy: ", accuracy);
+    console.log("Feature of ", feature, " accuracy is ", accuracy);
 
   })
 
@@ -101,5 +105,18 @@ function splitDataset(data, testCount) {
 
 //featureCount - number of row to normilze
 function minMax(data, featureCount) {
+  const clonedData = _.cloneDeep(data);
+  for (let i = 0; i < featureCount; i++) {
+    const column = clonedData.map(row => row[i])
+    const min = _.min(column);
+    const max = _.max(column);
+    for (let j = 0; j < clonedData.length; j++) {
 
+      clonedData[j][i] = (clonedData[j][i] - min) / (max - min);
+
+    }
+
+
+  }
+  return clonedData;
 }
