@@ -10,8 +10,6 @@ const add = (() => {
 
 
 
-
-
 console.log(add());
 console.log(add());
 console.log(add());
