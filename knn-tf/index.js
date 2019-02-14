@@ -8,17 +8,25 @@ const loadCSV = require('./load-csv');
 
 
 function knn(features, labels, predictionPoint, k) {
-  return features
-    .sub(predictionPoint)
-    .pow(2)
-    .sum(1)
-    .pow(0.5)
-    .expandDims(1)
-    .concat(labels, 1)
-    .unstack()
-    .sort((a, b) => a.get(0) > b.get(0) ? 1 : -1)
-    .slice(0, k)
-    .reduce((acc, pair) => acc + pair.get(1), 0) / k
+  tf.disableDeprecationWarnings()
+
+  const { mean, variance } = tf.moments(features, 0);
+  const scaledPrediction = predictionPoint.sub(mean).div(variance.pow(0.5));
+  return (
+    features
+      .sub(mean)
+      .div(variance.pow(0.5))
+      .sub(scaledPrediction)
+      .pow(2)
+      .sum(1)
+      .pow(0.5)
+      .expandDims(1)
+      .concat(labels, 1)
+      .unstack()
+      .sort((a, b) => a.get(0) > b.get(0) ? 1 : -1)
+      .slice(0, k)
+      .reduce((acc, pair) => acc + pair.get(1), 0) / k
+  )
 }
 
 
@@ -27,10 +35,32 @@ function knn(features, labels, predictionPoint, k) {
 let { features, labels, testFeatures, testLabels } = loadCSV('kc_house_data.csv', {
   shuffle: true,
   splitTest: 10,
-  dataColumns: ['lat', 'long'],
+  dataColumns: ['lat', 'long', 'sqft_lot','sqft_living'],
   labelColumns: ['price']
 });
 
-console.log(testFeatures);
+//console.log(testFeatures);
+//console.log(testLabels);
+labels = tf.tensor(labels);
+features = tf.tensor(features);
+//testFeatures = tf.tensor(testFeatures);
+//testLabels = tf.tensor(testLabels);
+
+testFeatures.forEach((testPoint, i) => {
+
+  const result = knn(features, labels, tf.tensor(testPoint), 10);
+  const err = (testLabels[i][0] - result) / testLabels[i][0];
+
+  console.log('Error: ', err);
+  console.log(testLabels[i][0]);
+
+});
+
+
+
+
+//console.log('Guess', result, testLabels[0][0]);
 console.log(testLabels);
+console.log(testFeatures);
+
 
