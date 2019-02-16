@@ -11,9 +11,8 @@ function onScoreUpdate(dropPosition, bounciness, size, bucketLabel) {
 
   outputs.push([dropPosition, bounciness, size, bucketLabel]);
 
-  //console.log(outputs);
+  console.log(outputs);
 }
-
 function runAnalysis() {
   // Write code here to analyze stuff
   const testSetSize = 10;
